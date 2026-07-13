@@ -12,10 +12,10 @@ deciding what's worth fixing, writing the spec), and hand execution to anything.
 
 | Skill | Audits | Trigger it with |
 | --- | --- | --- |
-| [`improve-copy`](skills/improve-copy) | Every user-facing string — error messages, empty states, button labels, microcopy, tone, casing | "improve the copy", "audit the UX writing", "fix our error messages" |
-| [`improve-prompts`](skills/improve-prompts) | The LLM prompts inside the codebase — system prompts, tool descriptions, few-shot examples, injection surfaces | "improve my prompts", "audit the agent's instructions", "why does my agent misbehave" |
-| [`improve-errors`](skills/improve-errors) | How the app fails — swallowed catches, dead-end errors, missing loading/empty/offline states, lost input | "improve error handling", "audit our failure states", "make the app more robust" |
-| [`improve-analytics`](skills/improve-analytics) | Product analytics — funnel coverage, event taxonomy, identity, PII, delivery reliability | "improve our analytics", "audit our tracking", "why is our funnel data unreliable" |
+| [`improve-copy`](plugins/improve-copy/skills/improve-copy) | Every user-facing string — error messages, empty states, button labels, microcopy, tone, casing | "improve the copy", "audit the UX writing", "fix our error messages" |
+| [`improve-prompts`](plugins/improve-prompts/skills/improve-prompts) | The LLM prompts inside the codebase — system prompts, tool descriptions, few-shot examples, injection surfaces | "improve my prompts", "audit the agent's instructions", "why does my agent misbehave" |
+| [`improve-errors`](plugins/improve-errors/skills/improve-errors) | How the app fails — swallowed catches, dead-end errors, missing loading/empty/offline states, lost input | "improve error handling", "audit our failure states", "make the app more robust" |
+| [`improve-analytics`](plugins/improve-analytics/skills/improve-analytics) | Product analytics — funnel coverage, event taxonomy, identity, PII, delivery reliability | "improve our analytics", "audit our tracking", "why is our funnel data unreliable" |
 
 Each skill ships three files: `SKILL.md` (posture, hard rules, the 4-phase workflow), `AUDIT.md`
 (the rule catalog — the codified taste bar), and `PLAN-TEMPLATE.md` (the output format executors
@@ -23,28 +23,29 @@ consume).
 
 ## Install
 
-### As a plugin (recommended)
+### As plugins (recommended) — install only what you want
 
-In Claude Code:
+Each skill is its own plugin in one marketplace, so you install one, some, or all. In Claude Code:
 
 ```
 /plugin marketplace add october-dev/open-skills
-/plugin install open-skills@open-skills
+/plugin install improve-copy@open-skills        # just this one
 ```
 
-All four skills become available. Invoke one by describing the work ("audit our error messages") or
-by name (`improve-copy`).
+Install any others the same way (`improve-prompts`, `improve-errors`, `improve-analytics`). Invoke a
+skill by describing the work ("audit our error messages") or by name (`improve-copy`).
 
-### Manually
+### Manually — copy a single skill
 
-Copy any skill into your skills directory — user-level (all projects) or per-project:
+No plugin machinery needed; copy just the skill you want into your skills directory, user-level (all
+projects) or per-project:
 
 ```bash
 # user-level
-cp -r skills/improve-copy ~/.claude/skills/
+cp -r plugins/improve-copy/skills/improve-copy ~/.claude/skills/
 
 # or per-project
-cp -r skills/improve-copy .claude/skills/
+cp -r plugins/improve-copy/skills/improve-copy .claude/skills/
 ```
 
 ## How a skill runs

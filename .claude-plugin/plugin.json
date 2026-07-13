@@ -1,0 +1,13 @@
+{
+  "name": "open-skills",
+  "description": "The improve-* family: senior-advisor skills that audit a codebase — user-facing copy, LLM prompts, error handling, product analytics — and write self-contained plans any agent (including cheaper models) can execute. Read-only; it never edits your code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "October",
+    "url": "https://github.com/october-dev"
+  },
+  "homepage": "https://github.com/october-dev/open-skills",
+  "repository": "https://github.com/october-dev/open-skills",
+  "license": "MIT",
+  "keywords": ["audit", "planning", "agents", "copy", "ux-writing", "prompts", "error-handling", "analytics", "tech-debt"]
+}

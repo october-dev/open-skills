@@ -1,0 +1,16 @@
+{
+  "name": "open-skills",
+  "owner": {
+    "name": "October",
+    "url": "https://github.com/october-dev"
+  },
+  "metadata": {
+    "description": "Claude Code marketplace catalog for the open-skills improve-* family."
+  },
+  "plugins": [
+    {
+      "name": "open-skills",
+      "source": "./"
+    }
+  ]
+}

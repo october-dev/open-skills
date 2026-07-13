@@ -83,3 +83,27 @@ Report at most a handful, grounded in actual seams you observed in the fleet —
 - **LOW** — hygiene: unstructured walls of text, dead weight, inconsistent tool naming, cosmetic repetition.
 
 Rank by leverage (behavior impact ÷ effort). A one-line delimiter fix that closes an injection surface outranks a large restructure that only tidies a LOW hygiene issue.
+
+## Finding format
+
+Every finding, from every category and every subagent, comes back in this shape. A finding is only a finding with evidence — "the tool descriptions are probably too terse" is not a finding; `tools.ts:44 — the search tool's description is one line with no "when NOT to use" cross-reference against find_files` is.
+
+```markdown
+### [CATEGORY-NN] Short imperative title
+
+- **Evidence**: `path/file.ts:123` — the verbatim prompt excerpt (one to a few lines) and one sentence on what's wrong. (Repeat per location; 2–5 strongest locations, note "and ~N similar slots" if widespread. Redact any secret — cite the location and credential type, never the value.)
+- **Impact**: The behavioral failure, concretely: "on the input `"hi"`, both rules bind and the model resolves the conflict differently across runs", not "suboptimal wording".
+- **Effort**: S (a single prompt edit, hours) / M (a rewrite plus a golden test, a day-ish) / L (multi-prompt restructure or a schema change, multi-day) — for the *fix*, including its behavior check.
+- **Risk**: What the rewrite could break; LOW / MED / HIGH plus one line why (e.g. "MED — tightening this precedence rule could change output on the greeting path that a downstream parser depends on").
+- **Confidence**: HIGH (read the prompt, certain it misbehaves) / MED (strong signal, needs a behavior check to confirm) / LOW (smell — a borderline injection surface or a precedence question that can't be judged from text alone). LOW-confidence findings may be reported but get an "investigate" plan whose behavior check *is* the experiment, not a "fix" plan.
+- **Fix sketch**: 1–3 sentences. Not the plan — just enough to judge effort honestly.
+```
+
+## Prioritization rubric
+
+Order findings by **leverage = behavior impact ÷ effort, discounted by confidence and fix-risk**. Tiebreakers:
+
+1. Anything that unblocks other findings floats up — an eval baseline before any risky rewrite; a delimiter/data-hygiene convention several later plans reuse.
+2. Findings that change behavior on real inputs with HIGH confidence (contradictions that both bind, example-instruction mismatch, schema fights, raw injection surfaces, echoed secrets) float above equivalent-leverage reliability or hygiene items.
+3. Prefer findings whose fix has a clean behavior-check story — a concrete input with an unambiguous expected difference; executors succeed at those.
+4. "Not worth doing" is a valid verdict; record it in the index's "Findings considered and rejected" section with one line of reasoning so it isn't re-audited.

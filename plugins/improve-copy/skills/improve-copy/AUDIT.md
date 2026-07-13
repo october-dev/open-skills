@@ -73,3 +73,27 @@ Report a handful, grounded in real UI seams you observed — not a wishlist.
 **MEDIUM** = friction: generic buttons, mixed casing, placeholder-as-label.
 
 **LOW** = polish: filler words, tone warmth, tooltip dedup.
+
+## Finding format
+
+Every finding, from every category and every subagent, comes back in this shape. Severity above is the domain axis; the fields below let the advisor rank and the executor scope.
+
+```markdown
+### [CATEGORY-NN] Short imperative title
+
+- **Evidence**: `path/to/file.tsx:123` — the verbatim current string, one line on where the user sees it. (Repeat per location; 2–5 strongest, note "and ~N similar sites" if the pattern is widespread — e.g. the same generic toast in 12 places.) Never paste a secret or PII value here: cite the `file:line` and the type only (Hard Rule 6).
+- **Impact**: What the current copy costs the user — concrete. "The offline save failure dead-ends with 'Something went wrong'; the user retypes lost work", not "reads poorly".
+- **Effort**: S (a few strings, one file) / M (a surface's worth, or a terminology sweep across several files) / L (multi-surface, needs product answers) — for the *fix*, including its verification.
+- **Risk**: What the rewrite could break — LOW/MED/HIGH plus one line. Copy risk is usually LOW, but MED/HIGH when a string is inside interpolation logic, a shared i18n key used in multiple contexts, or a length-constrained UI slot.
+- **Confidence**: HIGH (read the string in context, certain it's wrong) / MED (looks wrong but the real cause / brand intent needs a product answer) / LOW (a smell — needs investigation). A LOW-confidence finding may be reported, but it gets an "investigate / confirm intent" plan, not a "rewrite" plan.
+- **Fix sketch**: 1–3 sentences — the direction and, where you already know it, the exact replacement string. Enough to judge effort honestly; the full replacement is spelled out later in the plan.
+```
+
+## Prioritization rubric
+
+Order findings by **leverage = impact ÷ effort, discounted by confidence and fix-risk**. Tiebreakers:
+
+1. Anything that unblocks other findings floats up (settle the terminology map before rewriting the strings that depend on it).
+2. HIGH-severity + HIGH-confidence findings float above equal-leverage polish.
+3. Prefer findings with a clean verification story — an exact replacement string that reads cleanly aloud and passes the i18n key-completeness check is a safe win; a rewrite that hinges on a product answer you don't have is not.
+4. "The copy here is already right" — or "not worth the churn" — is a valid verdict. Record it in the index's "Findings considered and rejected" section with one line of reasoning, so it isn't re-audited next run.

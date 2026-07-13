@@ -62,9 +62,14 @@ Every skill follows the same four phases:
    commit, with the exact target spelled out and a domain-appropriate verification step.
 
 Effort scales with the invocation: `quick` (high-traffic surfaces, a handful of HIGH findings),
-`standard` (default), `deep` (whole repo, LOW polish included). Other variants: a category focus, `plan
-<description>` (skip the audit, write one plan), `execute <plan>` (dispatch an executor and review its
-diff), and `reconcile` (re-check `plans/` against current code).
+`standard` (default), `deep` (whole repo, LOW polish included). Other variants: a category focus,
+`branch` (audit only the current branch's diff, tagging findings `introduced` vs `pre-existing`),
+`plan <description>` (skip the audit, write one plan), `review-plan <file>` (critique and tighten an
+existing plan), `execute <plan>` (dispatch a cheaper executor in an isolated worktree, then review
+its diff like a tech lead and render an APPROVE/REVISE/BLOCK verdict), and `reconcile` (re-check
+`plans/` against current code). Add `--issues` to any planning run to also publish each plan as a
+GitHub issue (with a public-repo safety check). The `execute`/`reconcile`/`--issues` lifecycle is
+specified in each skill's `closing-the-loop.md`.
 
 ## What makes an `improve-*` skill work
 

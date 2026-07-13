@@ -1,7 +1,7 @@
 {
   "name": "improve-prompts",
   "description": "Audit the LLM prompts inside a codebase — system prompts, tool descriptions, few-shot examples, injection surfaces — as a senior prompt engineer, then write self-contained rewrite plans any agent can execute. Read-only; never edits your code.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "October",
     "url": "https://github.com/october-dev"

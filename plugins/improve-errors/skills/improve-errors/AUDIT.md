@@ -92,3 +92,29 @@ Anchor every finding to this rubric.
 - **HIGH** — data or input loss; invisible failure on a user action (empty catch on a user-initiated flow); lying UI (optimistic with no rollback, stale-but-confident live view); double-submit risk (retry without idempotency on payments/sends); boot dead-ends (login-wall spinner that never resolves).
 - **MEDIUM** — dead-end surfaces (error with no next step, `alert()` for errors); missing retry on transient paths; missing offline messaging; user-visible errors that reach no telemetry.
 - **LOW** — consistency consolidation (multiple surfacing patterns); slow-path labels and cancel affordances; console debris on error paths.
+
+## Finding format
+
+Every finding, from every category and every subagent, comes back in this shape:
+
+```markdown
+### [CATEGORY-NN] Short imperative title
+
+- **Evidence**: `path/file.ts:123` — one-line description with the verbatim catch/fetch/render excerpt of what's there. (Repeat per location; 2–5 strongest locations, note "and ~N similar sites" if the pattern is widespread.)
+- **Impact**: What the user experiences when it fails / what's being paid. Concrete: "a failed save shows nothing — the spinner spins forever and the typed note is lost", not "poor error handling".
+- **Severity**: HIGH / MEDIUM / LOW, anchored to the severity rubric above.
+- **Effort**: S (hours) / M (a day-ish) / L (multi-day) — for the *fix*, including the failure-reproducing test.
+- **Risk**: What the fix could break; LOW/MED/HIGH plus one line why (e.g. "adding rollback touches optimistic-update code shared by three views").
+- **Confidence**: HIGH (read the code, certain it's an accidental swallow) / MED (strong signal, but can't tell from code alone if it's deliberate fire-and-forget) / LOW (smell, needs investigation). A LOW-confidence finding may be reported but gets an "investigate" plan, not a "fix" plan — and when you can't tell deliberate from accidental, put that question in the finding rather than guessing.
+- **Secrets note** (only if relevant): if the failure path logs or hardcodes a credential or writes PII into a report, cite the `file:line` and the credential/PII **type** only, never the value; recommend rotation for a real secret (Hard Rule 6).
+- **Fix sketch**: 1–3 sentences pulled from this playbook's rule (the catch body, the retry shape, the boundary) — enough to judge effort honestly, not the plan.
+```
+
+## Prioritization rubric
+
+Order findings by **leverage = impact ÷ effort, discounted by confidence and fix-risk**. Tiebreakers:
+
+1. Anything that unblocks other findings floats up — a shared `reportError` helper (one surface + telemetry choke-point) precedes the plans that route through it; a verification baseline precedes any risky hardening.
+2. Higher-severity + higher-confidence findings float above equivalent-leverage ones — an invisible failure on a save path outranks a console-debris cleanup at the same effort.
+3. Prefer findings whose fix has a clean failure-injection story (a repro you can name and watch recover) — executor models succeed at those.
+4. "This failure path is already handled" and "not worth doing" are valid verdicts. Record each with one line in the index's "Findings considered and rejected" section, so the user knows it was considered and it isn't re-audited next run.

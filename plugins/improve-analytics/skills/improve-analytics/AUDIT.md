@@ -88,3 +88,28 @@ Report only seams you actually saw, tied to the confirmed funnel — not a wishl
 | **HIGH** | Funnel gaps / double-counts; identity leaks across users (missing `reset`); content or PII in properties; critical events droppable at process exit |
 | **MEDIUM** | Taxonomy mixing; context-free events on analysis-critical paths; raw-SDK bypasses of the wrapper; missing env guards |
 | **LOW** | Property-name drift; dead / unreferenced events; catalog documentation gaps |
+
+## Finding format
+
+Every finding, from every category and every subagent, comes back in this shape. Severity (above) is the domain axis; Effort / Risk / Confidence make the finding actionable and rankable:
+
+```markdown
+### [CATEGORY-NN] Short imperative title
+
+- **Evidence**: `path/file.ts:123` — one-sentence description of what's there. (Repeat per location; 2–5 strongest locations, note "and ~N similar sites" if widespread.) Cite the location and the credential / PII TYPE, never a secret or content value.
+- **Severity**: HIGH | MEDIUM | LOW (per the rubric above).
+- **Impact**: What the team can't learn, or what's being paid, because of this. Concrete: "the payment-abandon step emits nothing, so the checkout funnel's denominator is invisible" — not "tracking could be better".
+- **Effort**: S (hours) / M (a day-ish) / L (multi-day) — for the *fix*, including its live-event verification.
+- **Risk**: What the fix could break; LOW/MED/HIGH plus one line why (e.g. renaming a live event breaks existing dashboards until they're repointed).
+- **Confidence**: HIGH (read the code, certain) / MED (strong signal, needs verification — e.g. whether an event reaches a dashboard the team uses) / LOW (a smell, needs investigation). LOW-confidence findings may be reported but get an "investigate" plan, not a "fix" plan.
+- **Fix sketch**: 1–3 sentences. Not the plan — just enough to judge effort honestly (catalog entry to add, wrapper call to route through, branch to instrument).
+```
+
+## Prioritization rubric
+
+Order findings by **leverage = impact ÷ effort, discounted by confidence and fix-risk**. Tiebreakers:
+
+1. Anything that **unblocks** other findings floats up — an identity / `reset` fix or a wrapper-consolidation that later coverage plans depend on, or "establish a verification baseline" when there's no typecheck/test path.
+2. A HIGH-severity, HIGH-confidence data-integrity finding (a funnel gap, a double-count, PII in props) floats above an equivalent-leverage cosmetic one.
+3. Prefer findings whose fix has a clean **live-event verification story** — an event you can trigger in dev and watch arrive is one an executor can prove done; an unverifiable "is this dashboard used?" finding ranks lower and often belongs on the team's triage list, not a plan.
+4. "Not worth doing" is a valid verdict — a healthy `~40–80`-event catalog with a documented no-content privacy rule should come back with a SHORT list. Record each rejection with one line of reasoning so it isn't re-audited next run.

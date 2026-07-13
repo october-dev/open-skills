@@ -12,25 +12,25 @@
       "name": "improve-copy",
       "source": "./plugins/improve-copy",
       "description": "Audit user-facing copy — errors, empty states, labels, microcopy — and write rewrite plans.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "name": "improve-prompts",
       "source": "./plugins/improve-prompts",
       "description": "Audit the LLM prompts inside a codebase — system prompts, tool descriptions, examples — and write rewrite plans.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "name": "improve-errors",
       "source": "./plugins/improve-errors",
       "description": "Audit how the app fails — swallowed catches, dead-end errors, missing failure states — and write hardening plans.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "name": "improve-analytics",
       "source": "./plugins/improve-analytics",
       "description": "Audit product analytics — funnel coverage, taxonomy, identity, PII, reliability — and write instrumentation plans.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ]
 }

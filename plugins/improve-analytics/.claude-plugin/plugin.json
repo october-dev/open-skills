@@ -1,7 +1,7 @@
 {
   "name": "improve-analytics",
   "description": "Audit a codebase's product analytics — funnel coverage, event taxonomy, identity, PII, delivery reliability — as a senior product analyst, then write self-contained instrumentation plans any agent can execute. Read-only; never edits your code.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "October",
     "url": "https://github.com/october-dev"

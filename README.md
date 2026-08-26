@@ -1,5 +1,13 @@
 <div align="center">
 
+<pre aria-label="OCTOBER">
+  ___   ____ _____ ___  ____  _____ ____
+ / _ \ / ___|_   _/ _ \| __ )| ____|  _ \
+| | | | |     | || | | |  _ \|  _| | |_) |
+| |_| | |___  | || |_| | |_) | |___|  _ <
+ \___/ \____| |_| \___/|____/|_____|_| \_\
+</pre>
+
 # Open Skills
 
 ### Senior codebase audits that end in executable plans.

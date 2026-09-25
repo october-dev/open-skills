@@ -1,0 +1,74 @@
+/* ==========================================================================
+   Launch-assets starter kit.  RECOLOR THESE TOKENS to the product's brand
+   (sample exact hex from a deck/screenshot — see references/design-and-copy.md).
+   Every concept links this file; change a token here and the whole set updates.
+   Each concept's outer element is .stage, sized to the target (default 1270×760).
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  /* --- brand tokens: replace with sampled values --- */
+  --ground:#faf8f4;          /* page background */
+  --ink:#1a1712;             /* primary text / near-black */
+  --ink-70:#4a463c; --ink-45:#837c6e; --ink-30:#a9a294;
+  --hair:#e7e0d4;
+  --accent:#c0501a;          /* headline emphasis + rules */
+  --accent-soft:#f6e6d8; --accent-mist:#eed8c4; --accent-deep:#9c3f12;
+  --brand:#f67800;           /* the loud logo-mark color (used sparingly) */
+  --white:#fff;
+  --blue:#2f6ae0; --green:#2f9e5f; --violet:#6d54d8;   /* status hues */
+  /* --- type --- */
+  --disp:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --sh-sm:0 2px 8px rgba(40,28,12,.06); --sh-md:0 14px 34px rgba(40,28,12,.10);
+  --sh-lg:0 34px 74px rgba(40,28,12,.15);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+/* set .stage width/height per target size in each concept (or here for a fixed default) */
+.stage{position:relative;width:1270px;height:760px;overflow:hidden;background:var(--ground)}
+
+/* grounds */
+.bg-warm{background:radial-gradient(1100px 640px at 82% -12%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 60%),var(--ground)}
+.bg-ink{background:#17140d;color:#f3ede2}
+.dot-grid::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(26,23,18,.09) 1.2px,transparent 1.3px);background-size:30px 30px}
+
+/* type */
+.eyebrow{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.h-hero{font-family:var(--disp);font-size:104px;font-weight:600;letter-spacing:-4px;line-height:.96}
+.h-1{font-family:var(--disp);font-size:66px;font-weight:600;letter-spacing:-2.4px;line-height:1}
+.h-2{font-family:var(--disp);font-size:48px;font-weight:600;letter-spacing:-1.6px;line-height:1.06}
+.h-3{font-family:var(--disp);font-size:32px;font-weight:600;letter-spacing:-1px;line-height:1.12}
+.body{font-family:var(--sans);font-size:21px;letter-spacing:-.2px;line-height:1.5;color:var(--ink-70)}
+.small{font-family:var(--sans);font-size:15px;letter-spacing:-.1px;color:var(--ink-45)}
+.mono{font-family:var(--mono);font-size:13px}
+.accent{color:var(--accent)}
+
+/* brand lockup (bottom-left of a frame) */
+.lock{display:flex;align-items:center;gap:11px}
+.lock .mark{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;box-shadow:var(--sh-sm)}
+.lock .mark img{width:22px;height:22px}
+.lock .wm{font-family:var(--disp);font-size:23px;font-weight:600;letter-spacing:-1px}
+
+/* surfaces */
+.card{background:var(--white);border:1px solid var(--hair);border-radius:22px;box-shadow:var(--sh-md)}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;background:var(--white);
+  border:1px solid var(--hair);font-size:15px;font-weight:500;box-shadow:var(--sh-sm)}
+.pill.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+/* window chrome for real UI / mock UI */
+.win{position:absolute;background:var(--white);border:1px solid var(--hair);border-radius:14px;box-shadow:var(--sh-lg);overflow:hidden}
+.win-bar{height:34px;display:flex;align-items:center;gap:9px;padding:0 13px;background:#fbf9f5;border-bottom:1px solid var(--hair)}
+.win-bar i{width:9px;height:9px;border-radius:50%;background:#e0d8c9;display:block}
+.win-body{padding:14px 15px;font-family:var(--mono);font-size:12.5px;line-height:1.8}
+
+/* scrim helper for text over photos/wallpapers */
+.scrim{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,8,4,.72),rgba(10,8,4,.2) 44%,transparent 66%),
+  linear-gradient(0deg,rgba(10,8,4,.5),transparent 30%)}
+
+/* motion helpers */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.dash{stroke-dasharray:7 9;animation:flow 1s linear infinite}@keyframes flow{to{stroke-dashoffset:-32}}

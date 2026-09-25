@@ -15,7 +15,7 @@
 Audit first. Exercise judgment once. Hand implementation to any capable agent.
 
 [![License](https://img.shields.io/badge/license-MIT-1C1B18?style=flat-square)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-4-7C6CF0?style=flat-square)](#skill-catalog)
+[![Skills](https://img.shields.io/badge/skills-5-7C6CF0?style=flat-square)](#skill-catalog)
 [![Source changes](https://img.shields.io/badge/source%20changes-none-3BAA6E?style=flat-square)](#safety-contract)
 
 </div>
@@ -51,6 +51,7 @@ The skill maps the relevant surface, audits it against a codified rule catalog, 
 | [`improve-prompts`](plugins/improve-prompts/skills/improve-prompts) | System prompts, tool descriptions, examples, context assembly, and injection surfaces | “Why does this agent misbehave?” |
 | [`improve-errors`](plugins/improve-errors/skills/improve-errors) | Swallowed errors, dead ends, lost input, and missing loading, empty, offline, or recovery states | “Make the app more resilient.” |
 | [`improve-analytics`](plugins/improve-analytics/skills/improve-analytics) | Funnel coverage, event taxonomy, identity, PII, and delivery reliability | “Audit our product analytics.” |
+| [`launch-assets`](plugins/launch-assets/skills/launch-assets) | Launch & marketing visuals — Product Hunt gallery images, thumbnails, social cards, GIF/MP4 loops | “Make our Product Hunt assets.” |
 
 Each skill contains four parts:
 
@@ -60,6 +61,13 @@ Each skill contains four parts:
 | `AUDIT.md` | The domain-specific quality bar and exact review rules |
 | `PLAN-TEMPLATE.md` | The self-contained handoff format an executor receives |
 | `closing-the-loop.md` | Execution, review, issue publishing, and reconciliation behavior |
+
+> **Note — `launch-assets` is a different kind of skill.** The `improve-*` family is read-only and
+> ends in plans. `launch-assets` is *generative*: it builds a library of launch visuals as real,
+> exportable HTML frames (with a filterable gallery and a deterministic PNG/GIF/MP4 export pipeline).
+> It writes files only inside its own working directory and never edits your source code. The safety
+> points below describe the read-only `improve-*` family; `launch-assets` follows the same "never touch
+> your source" boundary but does produce asset files by design.
 
 ## How an audit works
 

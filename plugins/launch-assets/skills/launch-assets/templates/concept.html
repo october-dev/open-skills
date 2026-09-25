@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Concept Name</title>
+<!-- Self-describing tags the pipeline reads (no manifest needed):
+     asset-kind: motion | (omit for static)   asset-dur: loop seconds
+     asset-poster: 0..1 still frame for motion  asset-group: gallery category -->
+<meta name="asset-kind" content="static">
+<meta name="asset-group" content="Message pillar">
+<!-- <meta name="asset-size" content="1080x1920"> only if not the default 1270x760 -->
+<link rel="stylesheet" href="../assets/kit.css">
+<style>
+  /* size .stage to the target platform frame (default is 1270×760 from the kit) */
+  .head{position:absolute;left:70px;top:60px;right:70px}
+  .foot{position:absolute;left:70px;bottom:44px}
+</style></head>
+<body>
+<div class="stage bg-warm dot-grid">
+  <div class="head">
+    <div class="eyebrow">Eyebrow · category</div>
+    <div class="h-1" style="margin-top:14px">One clear headline<br>with <span class="accent">one accent phrase</span>.</div>
+    <div class="body" style="margin-top:16px;max-width:52ch">One supporting sentence. One idea per frame.</div>
+  </div>
+
+  <!-- your visual: a real screenshot in a .win frame, logo chips, a diagram, big type… -->
+
+  <div class="foot lock"><span class="mark"><img src="../assets/logos/mark.png" alt=""></span><span class="wm">Brand</span></div>
+</div>
+
+<!-- Optional: logos/cursors from the kit. Remove if unused.
+<script type="module">
+  import { logo, cursor } from '../assets/kit.js';
+  // document.querySelector('...').innerHTML = logo('somekey');
+</script>
+-->
+</body></html>

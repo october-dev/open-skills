@@ -5,32 +5,38 @@
     "url": "https://github.com/october-dev"
   },
   "metadata": {
-    "description": "The improve-* family — senior-advisor Claude Code skills that audit a codebase and write self-contained plans any agent can execute. Install one, some, or all."
+    "description": "The improve-* family \u2014 senior-advisor Claude Code skills that audit a codebase and write self-contained plans any agent can execute. Install one, some, or all."
   },
   "plugins": [
     {
       "name": "improve-copy",
       "source": "./plugins/improve-copy",
-      "description": "Audit user-facing copy — errors, empty states, labels, microcopy — and write rewrite plans.",
+      "description": "Audit user-facing copy \u2014 errors, empty states, labels, microcopy \u2014 and write rewrite plans.",
       "version": "1.1.0"
     },
     {
       "name": "improve-prompts",
       "source": "./plugins/improve-prompts",
-      "description": "Audit the LLM prompts inside a codebase — system prompts, tool descriptions, examples — and write rewrite plans.",
+      "description": "Audit the LLM prompts inside a codebase \u2014 system prompts, tool descriptions, examples \u2014 and write rewrite plans.",
       "version": "1.1.0"
     },
     {
       "name": "improve-errors",
       "source": "./plugins/improve-errors",
-      "description": "Audit how the app fails — swallowed catches, dead-end errors, missing failure states — and write hardening plans.",
+      "description": "Audit how the app fails \u2014 swallowed catches, dead-end errors, missing failure states \u2014 and write hardening plans.",
       "version": "1.1.0"
     },
     {
       "name": "improve-analytics",
       "source": "./plugins/improve-analytics",
-      "description": "Audit product analytics — funnel coverage, taxonomy, identity, PII, reliability — and write instrumentation plans.",
+      "description": "Audit product analytics \u2014 funnel coverage, taxonomy, identity, PII, reliability \u2014 and write instrumentation plans.",
       "version": "1.1.0"
+    },
+    {
+      "name": "launch-assets",
+      "source": "./plugins/launch-assets",
+      "description": "Generate a reviewable library of launch/marketing visual assets \u2014 Product Hunt gallery images, thumbnails, social cards, GIF/MP4 loops \u2014 as real exportable HTML frames, with a filterable gallery and a deterministic export pipeline. Generative: creates files, never edits your source.",
+      "version": "1.0.0"
     }
   ]
 }

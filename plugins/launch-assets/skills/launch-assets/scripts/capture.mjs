@@ -10,7 +10,7 @@
 */
 import { chromium } from 'playwright';
 import { unlinkSync } from 'node:fs';
-import { readdir, mkdir, rm, stat, writeFile, open as fopen, unlink } from 'node:fs/promises';
+import { readdir, mkdir, rm, stat, writeFile, open as fopen } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -74,11 +74,14 @@ async function main() {
   await mkdir('out', { recursive: true });
   // exclusive lock: refuse to run two exporters over the same out/ (avoids output races)
   const LOCK = 'out/.capture.lock';
-  let lockfh;
-  try { lockfh = await fopen(LOCK, 'wx'); await lockfh.writeFile(String(process.pid)); }
+  let lockfh, ownsLock = false;
+  try { lockfh = await fopen(LOCK, 'wx'); await lockfh.writeFile(String(process.pid)); ownsLock = true; }
   catch { console.error(`Another export is running (or a stale ${LOCK}). Run one at a time, or delete that file.`); process.exit(2); }
-  const release = async () => { try { await lockfh.close(); await unlink(LOCK); } catch {} };
-  process.on('exit', () => { try { unlinkSync(LOCK); } catch {} });
+  // idempotent, ownership-aware: only the lock's owner ever removes it, and only once —
+  // so releasing then exiting can't delete a successor's lock.
+  const releaseSync = () => { if (!ownsLock) return; ownsLock = false; try { unlinkSync(LOCK); } catch {} };
+  const release = async () => { try { await lockfh.close(); } finally { releaseSync(); } };
+  process.on('exit', releaseSync);
   let slugs = (await readdir('concepts')).filter(f => f.endsWith('.html')).map(f => f.replace('.html', ''));
   if (filters.length) slugs = slugs.filter(s => filters.some(f => s.includes(f)));
   slugs.sort();

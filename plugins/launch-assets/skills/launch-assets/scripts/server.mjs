@@ -1,11 +1,11 @@
-/* Hardened static server for the asset lab. Serves the working directory at :5273.
-   Safe to expose: refuses paths outside the directory, follows-then-rechecks symlinks,
-   and blocks dotfiles (.env, .git, …). */
+/* Static server for the asset lab. Serves the working directory at :5273, loopback only.
+   Hardened for use behind a tunnel: canonicalizes paths (rejecting symlink escapes), blocks
+   dotfiles on the canonical target (.env, .git, …). A tunnel still exposes the whole directory. */
 import { createServer } from 'node:http';
 import { readFile, stat, realpath } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep, relative } from 'node:path';
 
-const ROOT = resolve(process.cwd());
+const ROOT = await realpath(resolve(process.cwd())).catch(() => resolve(process.cwd()));
 const PORT = Number(process.env.PORT || 5273);
 const MIME = {
   '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8',

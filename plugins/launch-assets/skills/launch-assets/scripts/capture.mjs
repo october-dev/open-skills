@@ -40,6 +40,17 @@ const domInfo = (page) => page.evaluate(() => {
 });
 async function fontsReady(page) { await page.evaluate(() => document.fonts?.ready).catch(() => {}); await page.waitForTimeout(120); }
 const size = async (p) => (await stat(p)).size;
+const REQUIRED = ['image','stylesheet','font','media','script'];
+// watch a page for failed required resources and uncaught JS errors; returns a live array
+function watch(page) {
+  const bad = [];
+  page.on('response', r => { const t = r.request().resourceType();
+    if (REQUIRED.includes(t) && r.status() >= 400) bad.push(`${t} ${r.status()} ${r.url().split('/').pop()}`); });
+  page.on('requestfailed', r => { const t = r.resourceType();   // requestfailed passes a Request
+    if (REQUIRED.includes(t)) bad.push(`${t} failed ${r.url().split('/').pop()}`); });
+  page.on('pageerror', e => bad.push(`page error: ${String(e).split('\n')[0]}`));
+  return bad;
+}
 
 async function gifUnderCap(seq, dest, W) {
   const ladder = [ {fps:16,w:W}, {fps:12,w:W}, {fps:12,w:Math.round(W*0.8)},
@@ -67,7 +78,7 @@ async function main() {
 
   for (const slug of slugs) {
     const url = `${BASE}/concepts/${slug}.html`;
-    const tmp = `out/.tmp-${slug}`;
+    const tmp = `out/.tmp-${slug}-${process.pid}`;
     // clear this slug's prior artifacts so a now-static/failed concept can't leave a stale gif/png behind
     for (const ext of ['png', '@2x.png', 'thumb.png', 'json', 'gif', 'mp4'])
       await rm(`out/${slug}.${ext}`, { force: true });
@@ -76,11 +87,7 @@ async function main() {
     // one render context; track failed sub-resources (covers <img> AND CSS backgrounds/fonts)
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
     const p = await ctx.newPage();
-    const badRes = [];
-    p.on('response', r => { const t = r.request().resourceType();
-      if (['image','stylesheet','font','media'].includes(t) && r.status() >= 400) badRes.push(`${t} ${r.status()} ${r.url().split('/').pop()}`); });
-    p.on('requestfailed', r => { const t = r.resourceType();   // requestfailed passes a Request
-      if (['image','stylesheet','font','media'].includes(t)) badRes.push(`${t} failed ${r.url().split('/').pop()}`); });
+    const badRes = watch(p);
 
     const resp = await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => null);
     if (!resp || !resp.ok()) { fail(`HTTP ${resp ? resp.status() : 'unreachable'}`); await ctx.close(); continue; }
@@ -119,7 +126,12 @@ async function main() {
 
     // motion: frame sequence (1× context) → mp4 + gif
     const lo = await browser.newContext({ viewport: { width: Math.max(W,200)+60, height: Math.max(H,200)+60 }, deviceScaleFactor: 1 });
-    const pl = await lo.newPage(); await pl.goto(url, { waitUntil: 'load' }); await pl.waitForLoadState('networkidle').catch(()=>{}); await fontsReady(pl); await pl.evaluate(FREEZE);
+    const pl = await lo.newPage(); const badLo = watch(pl);
+    await pl.goto(url, { waitUntil: 'load' }); await pl.waitForLoadState('networkidle').catch(()=>{}); await fontsReady(pl);
+    if (badLo.length) { await lo.close(); await ctx.close(); await rm(tmp, { recursive: true, force: true });
+      for (const ext of ['png','@2x.png','thumb.png','json','gif','mp4']) await rm(`out/${slug}.${ext}`, { force: true });
+      fail(`${badLo.length} asset(s) failed during frame render (e.g. ${badLo[0].split('/').pop()})`); continue; }
+    await pl.evaluate(FREEZE);
     const loc = pl.locator('.stage');
     // loop-seam guard: frame(0) must match frame(D), else the loop jumps
     await pl.evaluate(SEEK, 0); const f0 = await loc.screenshot();

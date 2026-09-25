@@ -30,7 +30,8 @@ for (const f of files) {
   const j = await readJ(`out/${slug}.json`);
   let name, kind, group, w, h;
   let overCap = false;
-  if (j) { ({ name, kind, group, w, h } = j); overCap = !!j.gifOverCap; }   // authoritative (from capture)
+  let unshippableGif = false;
+  if (j) { ({ name, kind, group, w, h } = j); unshippableGif = !!(j.gifOverCap || j.loopSeam); }   // authoritative (from capture)
   else {                                                        // fallback: HTML + real PNG size
     const html = await readT(`concepts/${f}`); const m = metaFromHtml(html);
     name = titleFromHtml(html) || slug; kind = m['asset-kind'] === 'motion' ? 'motion' : 'static'; group = m['asset-group'] || 'Assets';
@@ -40,7 +41,7 @@ for (const f of files) {
   items.push({ slug, name, kind, group, w, h,
     thumb: existsSync(`out/${slug}.thumb.png`) ? `out/${slug}.thumb.png` : null,
     still: existsSync(`out/${slug}.png`) ? `out/${slug}.png` : null,
-    gif: (kind === 'motion' && !overCap && existsSync(`out/${slug}.gif`)) ? `out/${slug}.gif` : null });
+    gif: (kind === 'motion' && !unshippableGif && existsSync(`out/${slug}.gif`)) ? `out/${slug}.gif` : null });
 }
 const groups = [...new Set(items.map(i => i.group))];
 

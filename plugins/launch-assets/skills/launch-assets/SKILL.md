@@ -17,7 +17,7 @@ Launch galleries (Product Hunt, app stores), social/OG cards, hero images, thumb
 
 ## Setup (once per project)
 
-Create an isolated working directory (never build inside the product's source tree — copy in only what you need):
+Work in a dedicated directory — default to an isolated one outside the product's source tree (copy in only what you need), or use a checked-in location like `marketing/assets/` if the user wants the assets committed there:
 
 ```
 <project>-asset-lab/
@@ -52,7 +52,7 @@ Write one self-contained HTML file per direction into `concepts/`, each on the s
 
 - The page's outer element is a `.stage` sized exactly to the target (default `1270×760`).
 - Each file **self-describes** via meta tags so the pipeline knows how to export it:
-  `<meta name="asset-kind" content="motion">` (omit for static), `<meta name="asset-dur" content="6">` (loop seconds), `<meta name="asset-poster" content="0.5">` (0–1, which frame becomes the still), `<meta name="asset-group" content="Multiplayer">` (a category for gallery filtering), and — only if the stage is not the default 1270×760 — `<meta name="asset-size" content="1080x1920">` so the gallery lays the card out at the right aspect.
+  `<meta name="asset-kind" content="motion">` (omit for static), `<meta name="asset-dur" content="6">` (loop seconds), `<meta name="asset-poster" content="0.5">` (0–1, which frame becomes the still), `<meta name="asset-group" content="Multiplayer">` (a category for gallery filtering), and optionally `<meta name="asset-size" content="1080x1920">`. Size is not something you must maintain: the export detects the real `.stage` size and the gallery reads it back from the export, so any frame size just works; `asset-size` is only a hint used if the gallery is built before an export exists.
 
 Aim for **many materially different directions**, not color variations of one layout. Give each a distinct visual thesis. The craft rules that made past sets land — one idea per frame, scrims over photos, logo legibility, plain-language mode, real screenshots over mockups, no near-duplicates — are in [references/design-and-copy.md](references/design-and-copy.md). Read it before authoring.
 
@@ -74,7 +74,7 @@ Before sharing, do a quick **render-QA pass**: skim the exported stills (a conta
 `out/*.png` is the fastest way), confirm the fonts/weights actually rendered, check any 240×240
 thumbnail crops look right, and re-check `capture.mjs`’s end-of-run summary — it fails the batch
 (nonzero exit) on unreachable pages, missing assets, oversized GIFs, or loop seams. Then let the
-user review and share. See [references/gallery-and-share.md](references/gallery-and-share.md): the filterable gallery (`index.html`) for picking winners with notes, the flat `all.html` for sending externally, and how to expose it — open it in a connected browser, or start a Cloudflare quick tunnel (`cloudflared tunnel --url http://localhost:5273`) for a shareable link. **Only create a public link when the user asks to share** — building assets does not imply publishing them. **A quick tunnel is public and unauthenticated and dies when the machine sleeps** — say so when you hand over the link, and never tunnel anything the user has marked sensitive.
+user review and share. See [references/gallery-and-share.md](references/gallery-and-share.md): the filterable gallery (`index.html`) for picking winners, the flat `all.html` for sending externally, and how to expose it — open it in a connected browser, or start a Cloudflare quick tunnel (`cloudflared tunnel --url http://localhost:5273`) for a shareable link. **Only create a public link when the user asks to share** — building assets does not imply publishing them. **A quick tunnel is public and unauthenticated, exposes the whole working directory, and becomes unavailable when the host sleeps, loses network, or the process stops (a new process usually gets a new URL)** — say so when you hand over the link, and never tunnel anything the user has marked sensitive.
 
 ## Definition of done
 

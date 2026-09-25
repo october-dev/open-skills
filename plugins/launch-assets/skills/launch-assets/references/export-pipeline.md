@@ -98,9 +98,10 @@ manifest to keep in sync:
 - `<meta name="asset-dur" content="6">` → loop seconds (default 6).
 - `<meta name="asset-poster" content="0.42">` → 0–1, the still frame for motion.
 - `<meta name="asset-group" content="...">` → category for gallery filtering.
-- `<meta name="asset-size" content="1080x1920">` → **only if the stage is not 1270×760.** The
-  export auto-detects the real `.stage` size, but the live gallery reads this hint to lay the
-  card out at the right aspect (portrait/other sizes are clipped without it).
+- `<meta name="asset-size" content="1080x1920">` → **optional.** The export always auto-detects the
+  real `.stage` size and records it in `out/<slug>.json`, and the gallery reads it back from there (or
+  from the exported PNG's own dimensions), so any frame size renders un-clipped without this tag. It's
+  only a hint for building the gallery before an export exists.
 
 (If you prefer a central manifest with per-concept copy, thesis, and designer notes, that also
 works — but self-describing files are less to maintain for a shared skill.)
@@ -113,8 +114,10 @@ works — but self-describing files are less to maintain for a shared skill.)
 - A motion frame's still looks empty → its `asset-poster` lands on a gap in the loop; pick a
   fuller beat.
 - Re-export a subset by passing ids/slugs as args to `capture.mjs`.
-- The exporter **hard-fails a concept** whose page 404s or has no sized `.stage` (so a broken path
-  can't slip through as a tiny blank PNG), **warns** when a referenced image failed to load, and
-  **warns** on a loop seam. Read the summary it prints at the end.
+- The exporter **fails a concept** (writes no files for it) whose page 404s, has no sized `.stage`,
+  has a required image/script/font/stylesheet/background that fails to load, or throws a JS error —
+  so a broken frame can't slip through as a tiny blank PNG. A **loop seam** or a **GIF that can't fit
+  the cap** are flagged too; all of these make the whole batch exit nonzero, and the share gallery
+  omits an over-cap or seam GIF (falling back to the still). Read the summary it prints at the end.
 - **Odd dimensions**: `libx264` requires even width/height, so the pipeline rounds the MP4/GIF down
   to even automatically — the PNG still keeps the exact stage size.

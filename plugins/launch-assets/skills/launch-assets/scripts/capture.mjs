@@ -68,6 +68,9 @@ async function main() {
   for (const slug of slugs) {
     const url = `${BASE}/concepts/${slug}.html`;
     const tmp = `out/.tmp-${slug}`;
+    // clear this slug's prior artifacts so a now-static/failed concept can't leave a stale gif/png behind
+    for (const ext of ['png', '@2x.png', 'thumb.png', 'json', 'gif', 'mp4'])
+      await rm(`out/${slug}.${ext}`, { force: true });
     const fail = (msg) => { failed.push(`${slug}: ${msg}`); console.log(`✗ ${slug} — ${msg}`); };
 
     // one render context; track failed sub-resources (covers <img> AND CSS backgrounds/fonts)
@@ -76,7 +79,7 @@ async function main() {
     const badRes = [];
     p.on('response', r => { const t = r.request().resourceType();
       if (['image','stylesheet','font','media'].includes(t) && r.status() >= 400) badRes.push(`${t} ${r.status()} ${r.url().split('/').pop()}`); });
-    p.on('requestfailed', r => { const t = r.request().resourceType();
+    p.on('requestfailed', r => { const t = r.resourceType();   // requestfailed passes a Request
       if (['image','stylesheet','font','media'].includes(t)) badRes.push(`${t} failed ${r.url().split('/').pop()}`); });
 
     const resp = await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => null);

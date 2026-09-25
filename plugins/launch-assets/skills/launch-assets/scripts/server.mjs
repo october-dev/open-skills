@@ -26,7 +26,10 @@ createServer(async (req, res) => {
     const file = resolve(join(ROOT, rel));
     if (!inside(file)) { res.writeHead(403); return res.end('403'); }             // string check
     const real = await realpath(file).catch(() => null);                          // resolve symlinks…
-    if (!real || !inside(real)) { res.writeHead(403); return res.end('403'); }    // …then re-check
+    if (!real) { res.writeHead(404); return res.end('404'); }                     // missing file
+    if (!inside(real)) { res.writeHead(403); return res.end('403'); }             // symlink escaped root
+    // …and re-check dotfiles on the CANONICAL path (a symlink can alias .env / a .private dir)
+    if (relative(ROOT, real).split(/[/\\]/).some(seg => seg.startsWith('.'))) { res.writeHead(404); return res.end('404'); }
     const s = await stat(real).catch(() => null);
     if (!s || s.isDirectory()) { res.writeHead(404); return res.end('404'); }
     res.writeHead(200, { 'Content-Type': MIME[extname(real).toLowerCase()] || 'application/octet-stream',

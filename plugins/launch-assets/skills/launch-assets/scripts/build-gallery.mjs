@@ -19,6 +19,7 @@ const titleFromHtml = (html) => decode((html.match(/<title>([\s\S]*?)<\/title>/i
 async function pngSize(f) { try { const fh = await open(f); const b = Buffer.alloc(24); await fh.read(b, 0, 24, 0); await fh.close();
   if (b.toString('ascii', 1, 4) === 'PNG') return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }; } catch {} return null; }
 const esc = (s) => (s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const j2s = (v) => JSON.stringify(v).replace(/</g, '\\u003c');   // safe to embed in <script>
 const safeSlug = (s) => /^[A-Za-z0-9._-]+$/.test(s);
 
 const files = (await readdir('concepts')).filter(f => f.endsWith('.html')).sort();
@@ -28,7 +29,8 @@ for (const f of files) {
   if (!safeSlug(slug)) { skipped.push(slug); continue; }        // avoid unsafe URLs
   const j = await readJ(`out/${slug}.json`);
   let name, kind, group, w, h;
-  if (j) { ({ name, kind, group, w, h } = j); }                 // authoritative (from capture)
+  let overCap = false;
+  if (j) { ({ name, kind, group, w, h } = j); overCap = !!j.gifOverCap; }   // authoritative (from capture)
   else {                                                        // fallback: HTML + real PNG size
     const html = await readT(`concepts/${f}`); const m = metaFromHtml(html);
     name = titleFromHtml(html) || slug; kind = m['asset-kind'] === 'motion' ? 'motion' : 'static'; group = m['asset-group'] || 'Assets';
@@ -38,7 +40,7 @@ for (const f of files) {
   items.push({ slug, name, kind, group, w, h,
     thumb: existsSync(`out/${slug}.thumb.png`) ? `out/${slug}.thumb.png` : null,
     still: existsSync(`out/${slug}.png`) ? `out/${slug}.png` : null,
-    gif: existsSync(`out/${slug}.gif`) ? `out/${slug}.gif` : null });
+    gif: (kind === 'motion' && !overCap && existsSync(`out/${slug}.gif`)) ? `out/${slug}.gif` : null });
 }
 const groups = [...new Set(items.map(i => i.group))];
 
@@ -83,7 +85,7 @@ const indexHtml = `<!doctype html><meta charset="utf-8"><title>Asset Gallery</ti
   <button onclick="replay()">↻ Replay</button><button onclick="close_()">Close ✕</button></div>
   <div class="ovstage"><iframe id="ovf"></iframe></div></div>
 <script>
-const ITEMS=${JSON.stringify(items.map(i => ({ slug: i.slug, w: i.w, h: i.h, name: i.name })))};
+const ITEMS=${j2s(items.map(i => ({ slug: i.slug, w: i.w, h: i.h, name: i.name })))};
 let fg='all',fk='all',cur=-1;
 function fit(){document.querySelectorAll('.fr').forEach(fr=>{const f=fr.querySelector('iframe');const w=+fr.dataset.w;
   const ap=()=>f.style.transform='scale('+(fr.clientWidth/w)+')';ap();new ResizeObserver(ap).observe(fr);});}
@@ -111,7 +113,7 @@ await writeFile('index.html', indexHtml);
 
 /* ---------- all.html : flat, shareable, full-aspect stills ---------- */
 const shots = items.filter(i => i.still || i.thumb);
-const flat = JSON.stringify(shots.map(i => ({ name: i.name, full: (i.gif || i.still || i.thumb), kind: i.kind })));
+const flat = j2s(shots.map(i => ({ name: i.name, full: (i.gif || i.still || i.thumb), kind: i.kind })));
 const allCards = shots.map((it, i) => `<figure class="c" data-i="${i}" style="aspect-ratio:${it.w}/${it.h}"><img src="${it.still || it.thumb}" loading="lazy" alt="${esc(it.name)}">
   ${it.kind === 'motion' ? '<span class="mo">MOTION</span>' : ''}<figcaption>${esc(it.name)}</figcaption></figure>`).join('');
 const allHtml = `<!doctype html><meta charset="utf-8"><title>All Assets</title>

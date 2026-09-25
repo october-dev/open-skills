@@ -9,7 +9,8 @@
           node capture.mjs 01 hero    (only concepts whose slug contains these)
 */
 import { chromium } from 'playwright';
-import { readdir, mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { unlinkSync } from 'node:fs';
+import { readdir, mkdir, rm, stat, writeFile, open as fopen, unlink } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -40,6 +41,8 @@ const domInfo = (page) => page.evaluate(() => {
 });
 async function fontsReady(page) { await page.evaluate(() => document.fonts?.ready).catch(() => {}); await page.waitForTimeout(120); }
 const size = async (p) => (await stat(p)).size;
+const purgeSlug = async (slug) => { for (const f of [`out/${slug}.png`, `out/${slug}@2x.png`,
+  `out/${slug}.thumb.png`, `out/${slug}.json`, `out/${slug}.gif`, `out/${slug}.mp4`]) await rm(f, { force: true }); };
 const REQUIRED = ['image','stylesheet','font','media','script'];
 // watch a page for failed required resources and uncaught JS errors; returns a live array
 function watch(page) {
@@ -69,6 +72,13 @@ async function gifUnderCap(seq, dest, W) {
 
 async function main() {
   await mkdir('out', { recursive: true });
+  // exclusive lock: refuse to run two exporters over the same out/ (avoids output races)
+  const LOCK = 'out/.capture.lock';
+  let lockfh;
+  try { lockfh = await fopen(LOCK, 'wx'); await lockfh.writeFile(String(process.pid)); }
+  catch { console.error(`Another export is running (or a stale ${LOCK}). Run one at a time, or delete that file.`); process.exit(2); }
+  const release = async () => { try { await lockfh.close(); await unlink(LOCK); } catch {} };
+  process.on('exit', () => { try { unlinkSync(LOCK); } catch {} });
   let slugs = (await readdir('concepts')).filter(f => f.endsWith('.html')).map(f => f.replace('.html', ''));
   if (filters.length) slugs = slugs.filter(s => filters.some(f => s.includes(f)));
   slugs.sort();
@@ -79,9 +89,8 @@ async function main() {
   for (const slug of slugs) {
     const url = `${BASE}/concepts/${slug}.html`;
     const tmp = `out/.tmp-${slug}-${process.pid}`;
-    // clear this slug's prior artifacts so a now-static/failed concept can't leave a stale gif/png behind
-    for (const ext of ['png', '@2x.png', 'thumb.png', 'json', 'gif', 'mp4'])
-      await rm(`out/${slug}.${ext}`, { force: true });
+    // clear this slug's prior artifacts so a now-static/failed concept can't leave a stale file behind
+    await purgeSlug(slug);
     const fail = (msg) => { failed.push(`${slug}: ${msg}`); console.log(`✗ ${slug} — ${msg}`); };
 
     // one render context; track failed sub-resources (covers <img> AND CSS backgrounds/fonts)
@@ -129,7 +138,7 @@ async function main() {
     const pl = await lo.newPage(); const badLo = watch(pl);
     await pl.goto(url, { waitUntil: 'load' }); await pl.waitForLoadState('networkidle').catch(()=>{}); await fontsReady(pl);
     if (badLo.length) { await lo.close(); await ctx.close(); await rm(tmp, { recursive: true, force: true });
-      for (const ext of ['png','@2x.png','thumb.png','json','gif','mp4']) await rm(`out/${slug}.${ext}`, { force: true });
+      await purgeSlug(slug);
       fail(`${badLo.length} asset(s) failed during frame render (e.g. ${badLo[0].split('/').pop()})`); continue; }
     await pl.evaluate(FREEZE);
     const loc = pl.locator('.stage');
@@ -158,6 +167,7 @@ async function main() {
   }
   await browser.close();
 
+  await release();
   console.log(`\n${done.length} exported · ${failed.length} failed · ${warned.length} need attention`);
   for (const f of failed) console.log('  ✗ ' + f);
   for (const w of warned) console.log('  ⚠ ' + w);
